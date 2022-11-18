@@ -4,13 +4,19 @@ TARGET="SUSE:ALP"
 
 echo "" >sync_log
 
-PKG_LIST=$(osc ls $TARGET | grep -v -E '^000|kernel-default|kernel-obs-build')
-echo $PKG_LIST
+PKG_LIST=$(osc ls $TARGET)
 for PKG in $PKG_LIST ; do
-        if osc rdiff openSUSE:Factory $PKG $TARGET |grep '^[+-]' >/dev/null ; then
-                echo "Package $PKG differs" >>sync_log ;
+	diff=$(osc pdiff $TARGET $PKG 2>/dev/null)
+	RETVAL=$?
+	if [ $RETVAL -eq 0 ]; then
+		if [ -n "$diff" ]; then
+	                echo "Package $PKG differs" >>sync_log ;
                 osc setlinkrev $TARGET $PKG || echo "FAILURE: setlinkrev for package $PKG" >>sync_log;
+                else
+	                 echo "Package $PKG not changed" >>sync_log ;
+
+		fi
         else
-                echo "Package $PKG not changed" >>sync_log ;
+                echo "Package $PKG is not a link to Factory, ignoring" >>sync_log ;
         fi
 done
