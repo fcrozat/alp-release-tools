@@ -1,22 +1,25 @@
 #!/bin/sh
 
-TARGET="SUSE:ALP:Source:Standard:0.1"
+TARGET="SUSE:ALP:Source:Standard:1.0"
+SOURCE="openSUSE.org:openSUSE:Factory"
 
 echo "" >sync_log
 
-PKG_LIST=$(osc ls $TARGET | grep yast)
+PKG_LIST=$(osc -A https://api.suse.de ls $TARGET)
 for PKG in $PKG_LIST ; do
-	diff=$(osc pdiff $TARGET $PKG 2>/dev/null)
+	osc -A https://api.suse.de ls $SOURCE $PKG >/dev/null 2>/dev/null
 	RETVAL=$?
 	if [ $RETVAL -eq 0 ]; then
+		diff=$(osc -A https://api.suse.de rdiff $TARGET $PKG $SOURCE 2>/dev/null)
 		if [ -n "$diff" ]; then
 	                echo "Package $PKG differs" >>sync_log ;
-	                osc setlinkrev $TARGET $PKG || echo "FAILURE: setlinkrev for package $PKG" >>sync_log;
+	                osc -A https://api.suse.de sr $SOURCE $PKG $TARGET || echo "FAILURE: submitreq for package $PKG" >>sync_log;
                 else
 	                 echo "Package $PKG not changed" >>sync_log ;
 
 		fi
         else
-                echo "Package $PKG is not a link to Factory, ignoring" >>sync_log ;
+                echo "Package $PKG does not exist in $SOURCE, ignoring" >>sync_log ;
         fi
 done
+
