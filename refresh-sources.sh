@@ -13,7 +13,7 @@ for PKG in $PKG_LIST ; do
 		diff=$(osc -A https://api.suse.de rdiff $TARGET $PKG $SOURCE 2>/dev/null)
 		if [ -n "$diff" ]; then
 	                echo "Package $PKG differs" >>sync_log ;
-	                osc -A https://api.suse.de sr $SOURCE $PKG $TARGET || echo "FAILURE: submitreq for package $PKG" >>sync_log;
+	                osc -A https://api.suse.de sr -m "refresh to Factory version" $SOURCE $PKG $TARGET || echo "FAILURE: submitreq for package $PKG" >>sync_log;
                 else
 	                 echo "Package $PKG not changed" >>sync_log ;
 
