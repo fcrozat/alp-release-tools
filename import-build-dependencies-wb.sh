@@ -4,7 +4,7 @@ ORIGIN="SUSE:ALP:Source:Standard:Core:0.1"
 SOURCE="SUSE:ALP:Source:Standard:0.1"
 TARGET="SUSE:ALP:Workbench"
 
-#PKG_LIST=$(osc ls $ORIGIN | egrep -v '000release|000product|AGGREGATE')
+PKG_LIST=$(osc -A https://api.suse.de ls $ORIGIN | egrep -v '000release|000product|AGGREGATE')
 PKG_LIST="MozillaFirefox"
 to_import=""
 for PKG in $PKG_LIST ; do
